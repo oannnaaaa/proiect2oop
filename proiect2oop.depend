@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1586468797 source:c:\users\oana\desktop\proiect2oop\211_radu_oana.cpp
+	<iostream>
+	<iostream>
+	<string.h>
+	<stdlib.h>
+
