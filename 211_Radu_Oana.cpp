@@ -1,9 +1,12 @@
+///Radu Oana, grupa 211,proiect 2 poo :)
 #include <iostream>
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
+
 using namespace std;
 
+//---------------------------------------------------------------
 class Data
 {
 protected:
@@ -30,7 +33,7 @@ public:
 }
 
 ///constructor de copiere
-    Data(Data& d);
+    Data(const Data& d);
 
 ///destructor
     ~Data();
@@ -52,14 +55,14 @@ public:
 
 };
 
-Data auxx(0,"sept",1000);
+Data auxx(0,"sept",1000); //ajuta constructorul parametrizat din clasa Part-time
 
 ///constructor de copiere
-Data::Data(Data &d)
+Data::Data(const Data &d)
 {
-    this->zi=d.zi;
-    this->luna=d.luna;
-    this->an=d.an;
+    zi=d.zi;
+    luna=d.luna;
+    an=d.an;
 }
 
 ///Destructor
@@ -88,16 +91,18 @@ ostream& operator<<(ostream& out, const Data& d)
 ///supraincarcarea operatorului >>
 istream& operator>>(istream& in, Data& d)
 {
- in >> d.zi;
- in >> d.luna;
- in >> d.an;
+ cout<<endl<<"\tZi (int): "; in >> d.zi;
+ cout<<"\tLuna (string): "; in >> d.luna;
+ cout<<"\tAn (int): "; in >> d.an;
  return in;
 }
 
+//-----------------------------------------------------------------------------
 class Angajat
 {
-     static int n;
+
 protected:
+    static int n,suma_standard;;
     string nume;
     string prenume;
     float salariu;
@@ -105,12 +110,12 @@ protected:
 
 public:
 /// metoda statica de afisare a numarului de obiecte
-static void numarObiecte(){ cout<<"nr total de angajati este: "<<n<<endl;}
+static void numarObiecte(){ cout<<"Numarul total de angajati este: "<<n<<endl;}
 
 ///Constructorul de initializare
 Angajat()
 {
-        n++; ///incrementam in constructor
+        n++;
         nume = "Default";
         prenume = "Default";
         salariu = 0;
@@ -121,7 +126,7 @@ Angajat()
 ///Constructorul parametrizat
 Angajat(string nume, string prenume, float salariu, Data data_angajare )
 {
-         n++; ///incrementam in constructor
+        n++;
         this->nume = nume;
         this->prenume = prenume;
         this->salariu = salariu;
@@ -131,18 +136,24 @@ Angajat(string nume, string prenume, float salariu, Data data_angajare )
 ///Constructorul de copiere
  Angajat(Angajat& a);
 
- ///Destructorul
+///Destructorul
  ~Angajat();
 
- ///set-uri si get-uri
+///set-uri si get-uri
     void setNume(string num){nume=num;}
-    void setPrenume(string p){prenume=p;}
-    void setSalariu(float s){salariu=s;}
-    void setDataAngajare(Data d){data_angajare=d;}
     string getNume(){return nume;}
+
+    void setPrenume(string p){prenume=p;}
     string getPrenume(){return prenume;}
+
+    void setSalariu(float s){salariu=s;}
     float getSalariu(){return salariu;}
+
+    void setDataAngajare(Data d){data_angajare=d;}
     Data getDataAngajare(){return data_angajare;}
+
+    void setSumaStandard(int n) {suma_standard = n;}
+    int getSumaStandard(){return suma_standard;}
 
 ///alte metode
     Angajat& operator= ( Angajat& z);
@@ -150,38 +161,39 @@ Angajat(string nume, string prenume, float salariu, Data data_angajare )
     friend istream& operator>>(istream&, Angajat&);
     virtual void citire(istream &in);
     virtual void afisare(ostream &out);
+
+
 };
 
 int Angajat::n = 0;
+int Angajat::suma_standard = 500;
+
 void Angajat::citire(istream &in)
 {
-    cout<<"Nume:";
+    cout<<"Nume: ";
     in>>nume;
 
-    cout<<"Prenume:";
+    cout<<"Prenume: ";
     in>>prenume;
-    /*in.get();
-    string p;
-    //getline(in,p); ///citire string pana la enter (permite sa avem spatii)
-    prenume=p;*/
 
-    cout<<"Salariu:";
+    cout<<"Salariu: ";
     in>>salariu;
 
-    cout<<"Data angajare:";
+    cout<<"Data angajarii: ";
     in>>data_angajare;
 }
+
 void Angajat::afisare(ostream &out){
     out<<"Nume: "<<nume<<"\n";
     out<<"Prenume: "<<prenume<<"\n";
     out<<"Salariu: "<<salariu<<"\n";
-    out<<"Data angajarii: "<<data_angajare<<"\n";
+    out<<"Data angajarii: "<<data_angajare;
 }
 
 ///Constructorul de copiere
-Angajat::Angajat(Angajat& a) //constructor de copiere
+Angajat::Angajat(Angajat& a)
 {
-    n++; ///incrementam in constructor
+    n++;
     this->prenume=a.prenume;
     this->nume=a.nume;
     this->salariu=a.salariu;
@@ -218,6 +230,7 @@ istream& operator>>(istream& in, Angajat& a)
  return in;
 }
 
+//--------------------------------------------------------------------------------
 class Part_time:public Angajat
 {
     private:
@@ -246,13 +259,29 @@ friend ostream& operator<<(ostream&, Part_time&);
 friend istream& operator>>(istream&, Part_time&);
 void citire(istream &in);
 void afisare(ostream &out);
+
+float prima( Part_time& t)
+{
+    int prima = 0;
+
+    string luna_curenta = t.final_contract.getLuna();
+    Data final_luna(30,"aprilie",2020);
+
+    if (t.final_contract.getAn() < 2020 || (t.final_contract.getAn() == 2020 && ( luna_curenta == "ianuarie" || luna_curenta == "februarie" || luna_curenta == "martie" || luna_curenta == "aprilie")))
+        prima = 0.75 * t.suma_standard;
+    else
+        prima = t.suma_standard;
+
+    return prima;
+}
+
 };
 
 void Part_time::citire(istream &in){
     Angajat::citire(in);
     cout<<"Dati numarul orelor de lucru pe zi: ";
     in>>nr_ore_zi;
-    cout<<"Dati data expirarii contract: ";
+    cout<<"Dati data expirarii contractului: ";
     in>>final_contract;
 }
 void Part_time::afisare(ostream &out){
@@ -261,17 +290,19 @@ void Part_time::afisare(ostream &out){
     out<<nr_ore_zi<<"\n";
     out<<"Contractul expira la: ";
     out<<final_contract<<"\n";
+    out<<"Prima pe care o ia de sarbatori este: ";
+    out<<this->prima(*this);
 }
 
 ///Constrcutor parametrizat
-Part_time::Part_time(string nume, string prenume, float salariu,Data data_angajare,int ore=0,Data finalc=auxx):Angajat(nume,prenume,salariu,data_angajare)
+Part_time::Part_time(string nume, string prenume, float salariu,Data data_angajare,int ore=0,Data finalc= auxx):Angajat(nume,prenume,salariu,data_angajare)
 {
     nr_ore_zi=ore;
     final_contract=finalc;
 }
 
 ///Constructorul de copiere
-Part_time::Part_time(Part_time& a):Angajat() //constructor de copiere
+Part_time::Part_time(Part_time& a):Angajat()
 {
     this->nr_ore_zi=a.nr_ore_zi;
     this->final_contract=a.final_contract;
@@ -334,6 +365,22 @@ friend ostream& operator<<(ostream&, Permanent&);
 friend istream& operator>>(istream&, Permanent&);
 void citire(istream &in);
 void afisare(ostream &out);
+
+float prima( Permanent& t)
+{
+    float suma = t.getSumaStandard(), spor = 0, vechime;
+    Data final_an(31,"decembrie",2020);
+    Data data_ang = t.getDataAngajare();
+
+    vechime = final_an.getAn() - data_ang.getAn();
+    if (t.nr_minori_intretinere != 0)
+        spor = (vechime/100) * suma_standard * t.nr_minori_intretinere;
+    else
+        spor = (vechime/100) * suma_standard;
+
+    return suma + spor;
+}
+
 };
 
 
@@ -346,6 +393,8 @@ void Permanent::afisare(ostream &out){
     Angajat::afisare(out);
     out<<"Numarul minorilor este: ";
     out<<nr_minori_intretinere<<"\n";
+    out<<"Prima pe care o ia de sarbatori este: ";
+    out<<this->prima(*this);
 }
 
 ///Constrcutor parametrizat
@@ -392,31 +441,32 @@ istream& operator>>(istream& in, Permanent& a)
 }
 
 
-
+///Functie cu care incepe programul(nu este metoda a vreunei clase)
 void tip(Angajat *&p, int &i) {
+
     string s;
-    cout<<"\n";
-    cout<<"Introduceti tipul angajatului "<<i+1<<": ";
+    cout<<"Introduceti tipul angajatului "<<i+1<<" (Part-time, Permanent): "<<endl;
     cin>>s;
+
     try{
-        if(s=="Part-time"){
+        if(s=="Part-time" || s=="part-time"){
                 p=new Part_time;
                 cin>>*p;
                 i++;
         }
         else
-            if(s=="Permanent"){
+            if(s=="Permanent" || s=="permanent"){
                 p=new Permanent;
                 cin>>*p;
                 i++;
             }
             else
-                if (s=="Angajat"){
+                /*if (s=="Angajat" || s=="angajat"){
                     p=new Angajat;
                     cin>>*p;
                     i++;
                 }
-                else
+                else*/
                     throw 10;
     }
     catch (bad_alloc var){
@@ -424,7 +474,7 @@ void tip(Angajat *&p, int &i) {
         exit(EXIT_FAILURE);
     }
     catch(int j){
-        cout<<"Nu ati introdus un post valid. Incercati Part-time, Permanant sau Angajat.\n ";
+        cout<<"Nu ati introdus un post valid. Incercati Part-time sau Permanant.\n ";
     }
 }
 
@@ -438,14 +488,58 @@ int main()
     cout<<"Introduceti numarul de angajati. "; cin>>n; cout<<endl;
 
     try{
-        ang=new Angajat*[n]; ///aloc memorie pentru n obiecte de tip personal apoi pentru fiecare obiect de tip personal etichetez tipul (adica il pot lasa personal
-                                                                                                                            /// sau il pot face regizor/actor)
+        ang=new Angajat*[n];
         for(int i=0;i<n;)
-            tip(ang[i],i); ///etichetez tipul, citesc, retin fiind transmis prin adresa
-        cout<<"\nAfisam personalul citit anterior:\n";
-        for(int i=0;i<n;i++){
-            cout<<"\n"<<*ang[i]; ///afisez personalul de pe pozitia i
-            cout<<"--------------------------\n";
+            tip(ang[i],i);
+
+        cout<<"\n\nDatele angajatilor au fost citite cu succes!\n\n";
+
+        _sleep(3000);  //asteapta 4 secunde
+        system("cls"); // curata ecranul din consola
+
+        int opt = 0;
+
+
+        cout<<"\n-----------------MENIU-----------------\n\n";
+        cout<<"\t 1. Afisati datele angajatilor;\n";
+        cout<<"\t 2. Curatati ecranul. \n";
+        cout<<"\t 3. Iesiti din program. \n";
+
+        while (opt != -1)
+        {
+        if (opt == 1)
+        cout<<"\n  Introduceti optiunea dorita: \n  1 - afisati toti angajatii; 2 - curatati ecranul;\n  3 - inchideti programul; \n";
+        cin >> opt;
+
+            switch (opt)
+            {
+                case 1:
+                    {
+                            cout<<"\nAfisam personalul citit anterior:\n";
+
+                        for(int i=0;i<n;i++)
+                            {
+                            cout<<"\n Angajat id: "<<i+1<<" \n"<<*ang[i]; ///afisez personalul de pe pozitia i
+                            cout<<"--------------------------\n";
+                            }
+                    }
+                    break;
+
+                case 2:
+                    {
+                        system("cls");
+                        cout<<"\n-----------------MENIU-----------------\n\n";
+                        cout<<"\t 1. Afisati datele angajatilor;\n";
+                        cout<<"\t 2. Curatati ecranul. \n";
+                        cout<<"\t 3. Iesiti din program. \n";
+                    }
+                    break;
+                case 3:
+                    return 0;
+                default:
+                    cout<<"Ati ales o optiune invalida. \n";
+
+            }
         }
     }
     catch (bad_alloc var){
